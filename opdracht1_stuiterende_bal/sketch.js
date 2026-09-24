@@ -19,7 +19,7 @@ class Ball {
     this.centerTriggered = false;
     this.collisionTriggered = false;
 
-    this.gravityForce = 90;
+    this.gravityForce = 120;
     this.gravity = 9.81 * this.gravityForce / (3600);
     this.gravitySpeed = 0
   }
@@ -27,9 +27,6 @@ class Ball {
   draw() {
     fill(this.color);
     circle(this.x, this.y, this.size);
-
-    fill(this.color);
-    circle(this.x+this.xSpeed, this.y+this.yspeed, this.size);
   }
 
   move() {
@@ -68,7 +65,7 @@ class Ball {
     // Horizontal OR vertical center
     if (
       (horizontalDistance < this.size / 2 ||
-      verticalDistance < this.size / 2)
+        verticalDistance < this.size / 2)
       && !this.centerTriggered
     ) {
       makeNote(random(notes), 0.4, 500);
@@ -86,11 +83,11 @@ class Ball {
   }
 }
 
-const ball1 = new Ball(100, 100, 10, 10, 80, '#e70000', [72, 74, 76, 79, 81]);
-const ball2 = new Ball(200, 200, 5, 5, 150, '#154e7a', [50, 52, 54, 57, 59]);
-const ball3 = new Ball(400, 400, 2, 8, 100, '#154e7a', [63, 64, 62, 67, 69]);
+const ball1 = new Ball(100, 100, 10, 10, 120, '#e70000', [72, 74, 76, 79, 81]);
+const ball2 = new Ball(200, 200, 5, 5, 80, '#154e7a', [50, 52, 54, 57, 59]);
+const ball3 = new Ball(700, 600, 5, 5, 80, '#154e7a', [60, 62, 64, 67, 69]);
 
-const balls = [] 
+const balls = []
 
 function setup() {
   createCanvas(800, 600);
@@ -100,58 +97,37 @@ function setup() {
   balls.push(ball3);
 }
 
+const activeCollisions = new Set();
+
 function draw() {
   background(bgcolor);
 
-  //collide with another ball and playnotes
   for (let i = 0; i < balls.length; i++) {
     for (let j = i + 1; j < balls.length; j++) {
-
-      if (balls[i].collideBall(balls[j])) {
-        if (!balls[i].collisionTriggered) {
-          balls[i].xSpeed = -balls[i].xSpeed;
-          balls[i].ySpeed = -balls[i].ySpeed;
-  
-          balls[j].xSpeed = -balls[j].xSpeed;
-          balls[j].ySpeed = -balls[j].ySpeed;
-  
-          balls[i].gravitySpeed = 0;
-          balls[j].gravitySpeed = 0;
-  
-          balls[i].playNote();
-          balls[j].playNote();
-  
-          stuiter(balls[i]);
-          stuiter(balls[j]);
-
-          balls[i].collisionTriggered = true;
-        } else {
-          balls[i].collisionTriggered = false;
+      const a = balls[i];
+      const b = balls[j];
+      const collisionKey = `${i}-${j}`;
+      const colliding = a.collideBall(b);
+      if (colliding) {
+        if (!activeCollisions.has(collisionKey)) {
+          a.xSpeed *= -1;
+          a.ySpeed *= -1;
+          b.xSpeed *= -1;
+          b.ySpeed *= -1;
+          a.gravitySpeed = 0;
+          b.gravitySpeed = 0;
+          a.playNote();
+          b.playNote();
+          stuiter(a);
+          stuiter(b);
+          activeCollisions.add(collisionKey);
         }
+      } else {
+        activeCollisions.delete(collisionKey);
       }
     }
     updateBall(balls[i]);
   }
-
-  // if (ball1.collideBall(ball2)) {
-  //   if (!ball1.collisionTriggered) {
-  //     ball1.xSpeed = -ball1.xSpeed;
-  //     ball1.ySpeed = -ball1.ySpeed;
-  //     ball2.xSpeed = -ball2.xSpeed;
-  //     ball2.ySpeed = -ball2.ySpeed;
-  //     ball1.gravitySpeed = 0;
-  //     ball2.gravitySpeed = 0;
-  //     ball1.playNote(); 
-  //     ball2.playNote(); 
-  //     stuiter(ball1);
-  //     stuiter(ball2);
-  //     ball1.collisionTriggered = true;
-  //   }
-  // } else {
-  //   ball1.collisionTriggered = false;
-  // }
-  // updateBall(ball1);
-  // updateBall(ball2);
 }
 
 //update the balls different functions
@@ -202,7 +178,7 @@ function getRandomColor() {
 }
 
 const randomRGBAColor = () => {
-  const r = Math.floor(Math.random() * 256);
+  const r = Math.floor(Math.random() * 256); //p5 References ??
   const g = Math.floor(Math.random() * 256);
   const b = Math.floor(Math.random() * 256);
   phase += phaseSteps;
@@ -214,10 +190,10 @@ const randomRGBAColor = () => {
 function mousePressed() {
   userStartAudio();
 
-  if (ball1.collide(mouseX, mouseY)) {
-    mouseDragBall = ball1;
-  } else if (ball2.collide(mouseX, mouseY)) {
-    mouseDragBall = ball2;
+  for (let i = 0; i < balls.length; i++) {
+    if (balls[i].collide(mouseX,mouseY)) {
+      mouseDragBall = balls[i];
+    }
   }
 }
 
@@ -232,7 +208,7 @@ function mouseDragged() {
 
 function mouseReleased() {
   if (mouseDragBall) {
-    mouseDragBall.gravitySpeed = 0; 
+    mouseDragBall.gravitySpeed = 0;
   }
   mouseDragBall = null;
 }
