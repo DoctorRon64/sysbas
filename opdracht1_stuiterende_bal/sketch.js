@@ -1,6 +1,9 @@
-var bgcolor = '#12b4c3';
+let bgcolor = 'rgb(148, 190, 23, 20)';
 let notes = [60, 62, 64, 65, 67, 69];
-let draggedBall;
+let mouseDragBall;
+
+let phase = 0;
+let phaseSteps = 0.1;
 
 class Ball {
   constructor(x, y, xSpeed, ySpeed, size, color, notes) {
@@ -16,13 +19,17 @@ class Ball {
     this.centerTriggered = false;
     this.collisionTriggered = false;
 
-    this.gravity = 9.81 * 50 / (60 * 60);
+    this.gravityForce = 90;
+    this.gravity = 9.81 * this.gravityForce / (3600);
     this.gravitySpeed = 0
   }
 
   draw() {
     fill(this.color);
     circle(this.x, this.y, this.size);
+
+    fill(this.color);
+    circle(this.x+this.xSpeed, this.y+this.yspeed, this.size);
   }
 
   move() {
@@ -81,39 +88,75 @@ class Ball {
 
 const ball1 = new Ball(100, 100, 10, 10, 80, '#e70000', [72, 74, 76, 79, 81]);
 const ball2 = new Ball(200, 200, 5, 5, 150, '#154e7a', [50, 52, 54, 57, 59]);
+const ball3 = new Ball(400, 400, 2, 8, 100, '#154e7a', [63, 64, 62, 67, 69]);
+
+const balls = [] 
 
 function setup() {
   createCanvas(800, 600);
+
+  balls.push(ball1);
+  balls.push(ball2);
+  balls.push(ball3);
 }
 
 function draw() {
   background(bgcolor);
 
   //collide with another ball and playnotes
-  if (ball1.collideBall(ball2)) {
-    if (!ball1.collisionTriggered) {
-      ball1.xSpeed = -ball1.xSpeed;
-      ball1.ySpeed = -ball1.ySpeed;
-      ball2.xSpeed = -ball2.xSpeed;
-      ball2.ySpeed = -ball2.ySpeed;
-      ball1.gravitySpeed = 0; ball2.gravitySpeed = 0;
-      ball1.playNote(); 
-      ball2.playNote();
-      stuiter(ball1); 
-      stuiter(ball2);
-      ball1.collisionTriggered = true;
-    }
-  } else {
-    ball1.collisionTriggered = false;
-  }
-  updateBall(ball1);
-  updateBall(ball2);
+  for (let i = 0; i < balls.length; i++) {
+    for (let j = i + 1; j < balls.length; j++) {
 
+      if (balls[i].collideBall(balls[j])) {
+        if (!balls[i].collisionTriggered) {
+          balls[i].xSpeed = -balls[i].xSpeed;
+          balls[i].ySpeed = -balls[i].ySpeed;
+  
+          balls[j].xSpeed = -balls[j].xSpeed;
+          balls[j].ySpeed = -balls[j].ySpeed;
+  
+          balls[i].gravitySpeed = 0;
+          balls[j].gravitySpeed = 0;
+  
+          balls[i].playNote();
+          balls[j].playNote();
+  
+          stuiter(balls[i]);
+          stuiter(balls[j]);
+
+          balls[i].collisionTriggered = true;
+        } else {
+          balls[i].collisionTriggered = false;
+        }
+      }
+    }
+    updateBall(balls[i]);
+  }
+
+  // if (ball1.collideBall(ball2)) {
+  //   if (!ball1.collisionTriggered) {
+  //     ball1.xSpeed = -ball1.xSpeed;
+  //     ball1.ySpeed = -ball1.ySpeed;
+  //     ball2.xSpeed = -ball2.xSpeed;
+  //     ball2.ySpeed = -ball2.ySpeed;
+  //     ball1.gravitySpeed = 0;
+  //     ball2.gravitySpeed = 0;
+  //     ball1.playNote(); 
+  //     ball2.playNote(); 
+  //     stuiter(ball1);
+  //     stuiter(ball2);
+  //     ball1.collisionTriggered = true;
+  //   }
+  // } else {
+  //   ball1.collisionTriggered = false;
+  // }
+  // updateBall(ball1);
+  // updateBall(ball2);
 }
 
 //update the balls different functions
 function updateBall(ball) {
-  if (draggedBall !== ball) {
+  if (mouseDragBall !== ball) {
     clamp(ball);
     ball.move();
   }
@@ -144,8 +187,7 @@ function clamp(ball) {
 
 function stuiter(ball) {
   ball.color = getRandomColor();
-  bgcolor = getRandomColor();
-  //makeNote(random(notes), 0.1, 100);
+  bgcolor = randomRGBAColor();
 }
 
 function getRandomColor() {
@@ -159,28 +201,38 @@ function getRandomColor() {
   return color;
 }
 
+const randomRGBAColor = () => {
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  phase += phaseSteps;
+  const a = (Math.sin(phase) + 1) / 2;
+
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
+
 function mousePressed() {
   userStartAudio();
 
   if (ball1.collide(mouseX, mouseY)) {
-    draggedBall = ball1;
+    mouseDragBall = ball1;
   } else if (ball2.collide(mouseX, mouseY)) {
-    draggedBall = ball2;
+    mouseDragBall = ball2;
   }
 }
 
 function mouseDragged() {
-  if (draggedBall) {
-    draggedBall.x = mouseX;
-    draggedBall.y = mouseY;
-    draggedBall.gravitySpeed = 0;
-    clamp(draggedBall);
+  if (mouseDragBall) {
+    mouseDragBall.x = mouseX;
+    mouseDragBall.y = mouseY;
+    mouseDragBall.gravitySpeed = 0;
+    clamp(mouseDragBall);
   }
 }
 
 function mouseReleased() {
-  if (draggedBall) {
-    draggedBall.gravitySpeed = 0; 
+  if (mouseDragBall) {
+    mouseDragBall.gravitySpeed = 0; 
   }
-  draggedBall = null;
+  mouseDragBall = null;
 }
