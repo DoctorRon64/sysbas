@@ -1,21 +1,25 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title id="page-title"></title>
-    
-    <script>
-      var loc = window.location.pathname;
-      var dir = loc.substring(1, loc.lastIndexOf('/'));
-      document.getElementById("page-title").innerHTML = dir;
-    </script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSC Server</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #3200dc;
+      font-family: system-ui, sans-serif;
+    }
 
-    <script src="../Library/p5.min.js"></script>
-    <script src="../Library/addons/p5.sound.min.js"></script>
-    <script src="../Library/socket_io.js"></script>
-    <script src="../oscLib.js"></script>
-    <script src="sketch.js"></script>
-  <style> body {padding: 0; margin: 0; background-color:#DDDDDD;} </style>
-  </head>
-  <body>
-  </body>
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script type="module" src="./main.ts"></script>
+</body>
 </html>

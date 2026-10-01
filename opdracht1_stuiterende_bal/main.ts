@@ -1,93 +1,18 @@
-let bgcolor = 'rgb(148, 190, 23, 20)';
-let notes = [60, 62, 64, 65, 67, 69];
-let mouseDragBall;
+import { Ball, getRandomColor } from "./ball";
+
+let bgcolor: string = '#3b3849';
 
 let phase = 0;
 let phaseSteps = 0.1;
 
-class Ball {
-  constructor(x, y, xSpeed, ySpeed, size, color, notes) {
-    this.x = x;
-    this.y = y;
-    this.xSpeed = xSpeed;
-    this.ySpeed = ySpeed;
-    this.size = size;
-    this.color = color;
-    this.notes = notes;
-    this.noteIndex = 0;
-
-    this.centerTriggered = false;
-    this.collisionTriggered = false;
-
-    this.gravityForce = 120;
-    this.gravity = 9.81 * this.gravityForce / (3600);
-    this.gravitySpeed = 0
-  }
-
-  draw() {
-    fill(this.color);
-    circle(this.x, this.y, this.size);
-  }
-
-  move() {
-    this.gravitySpeed += this.gravity;
-    this.x += this.xSpeed;
-    this.y += this.ySpeed + this.gravitySpeed;
-  }
-
-  collide(mouseX, mouseY) {
-    let d = dist(mouseX, mouseY, this.x, this.y);
-    return d < this.size / 2;
-  }
-
-  collideBall(other) {
-    let d = dist(this.x, this.y, other.x, other.y);
-    return d < (this.size / 2 + other.size / 2);
-  }
-
-  playNote() {
-    let note = this.notes[this.noteIndex];
-    let detune = map(this.x, 0, width, -0.2, 0.2);
-    let tunedNote = note + detune;
-    makeNote(tunedNote, 0.1, 100); this.noteIndex++;
-    if (this.noteIndex >= this.notes.length) {
-      this.noteIndex = 0;
-    }
-  }
-
-  checkCenter() {
-    let centerX = width / 2;
-    let centerY = height / 2;
-
-    let horizontalDistance = abs(this.x - centerX);
-    let verticalDistance = abs(this.y - centerY);
-
-    // Horizontal OR vertical center
-    if (
-      (horizontalDistance < this.size / 2 ||
-        verticalDistance < this.size / 2)
-      && !this.centerTriggered
-    ) {
-      makeNote(random(notes), 0.4, 500);
-      this.centerTriggered = true;
-      this.color = getRandomColor();
-    }
-
-    // Leave center
-    if (
-      horizontalDistance > this.size / 2 + 5 &&
-      verticalDistance > this.size / 2 + 5
-    ) {
-      this.centerTriggered = false;
-    }
-  }
-}
-
 const ball1 = new Ball(100, 100, 10, 10, 120, '#e70000', [72, 74, 76, 79, 81]);
 const ball2 = new Ball(200, 200, 5, 5, 80, '#154e7a', [50, 52, 54, 57, 59]);
 const ball3 = new Ball(700, 600, 5, 5, 80, '#154e7a', [60, 62, 64, 67, 69]);
+const ball4 = new Ball(800, 200, 5, 5, 80, '#154e7a', [60, 62, 64, 67, 69]);
 
-const balls = []
+let mouseDragBall: Ball | null = null;
+const balls: Ball[] = []
+const activeCollisions = new Set();
 
 function setup() {
   createCanvas(800, 600);
@@ -95,9 +20,8 @@ function setup() {
   balls.push(ball1);
   balls.push(ball2);
   balls.push(ball3);
+  balls.push(ball4);
 }
-
-const activeCollisions = new Set();
 
 function draw() {
   background(bgcolor);
@@ -131,7 +55,7 @@ function draw() {
 }
 
 //update the balls different functions
-function updateBall(ball) {
+function updateBall(ball: Ball) {
   if (mouseDragBall !== ball) {
     clamp(ball);
     ball.move();
@@ -142,7 +66,7 @@ function updateBall(ball) {
 }
 
 //clamp to the width and height of the screen
-function clamp(ball) {
+function clamp(ball: Ball) {
   // Horizontal walls
   if (ball.x + ball.size / 2 >= width || ball.x - ball.size / 2 <= 0) {
     ball.x = constrain(ball.x, ball.size / 2, width - ball.size / 2);
@@ -161,20 +85,9 @@ function clamp(ball) {
   }
 }
 
-function stuiter(ball) {
+function stuiter(ball: Ball) {
   ball.color = getRandomColor();
   bgcolor = randomRGBAColor();
-}
-
-function getRandomColor() {
-  var letters = '0123456789ABCDEF';
-  var color = '#';
-
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-
-  return color;
 }
 
 const randomRGBAColor = () => {
@@ -191,7 +104,7 @@ function mousePressed() {
   userStartAudio();
 
   for (let i = 0; i < balls.length; i++) {
-    if (balls[i].collide(mouseX,mouseY)) {
+    if (balls[i].collide(mouseX, mouseY)) {
       mouseDragBall = balls[i];
     }
   }

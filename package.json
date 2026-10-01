@@ -1,35 +1,24 @@
 {
-  "name": "csdosc",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "osc-vite-typescript-starter",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node oscServer.js",
-    "dev": "nodemon --watch oscServer.js --watch Library oscServer.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/csdhku/csdosc.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/csdhku/csdosc/issues"
-  },
-  "homepage": "https://github.com/csdhku/csdosc#readme",
-  "dependencies": {
-    "express": "^5.2.1",
-    "lodash": "^4.17.21",
-    "node-osc": "^11.7.0",
-    "os": "^0.1.2",
-    "socket.io": "^4.8.3"
+    "dev": "tsx server/dev-server.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "vite build"
   },
   "devDependencies": {
-    "browser-sync": "^3.0.4",
-    "concurrently": "^10.0.5",
-    "livereload": "^0.10.3",
-    "nodemon": "^3.1.14"
+    "@types/node": "^24.10.1",
+    "@types/p5": "^1.7.7",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.1",
+    "ws": "^8.18.3"
+  },
+  "dependencies": {
+    "node-osc": "^11.7.0",
+    "p5": "^2.3.4",
+    "p5.sound": "^0.4.1"
   }
 }
