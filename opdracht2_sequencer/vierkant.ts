@@ -6,6 +6,8 @@ export class Vierkant {
         this.colorAan = colorAan;
         this.colorUit = colorUit;
         this.colorMuted = colorMuted;
+        this.huidigeKleur = color(colorUit);
+        this.huidigeRand = color(0);
     }
 
     x: number;
@@ -15,6 +17,10 @@ export class Vierkant {
     colorUit: string;
     colorMuted: string;
     muted: boolean = false;
+    huidigeKleur: ReturnType<typeof color>;
+    huidigeRand: ReturnType<typeof color>;
+    // 0 = verandert nooit, 1 = springt meteen naar de nieuwe kleur
+    lerpSnelheid: number = .45;
 
     toggleMute() {
         this.muted = !this.muted;
@@ -44,21 +50,30 @@ export class Vierkant {
 
     color(aan: boolean, alpha: number = 1, noot?: number) {
         let c: ReturnType<typeof color>;
+        let rand: ReturnType<typeof color>;
         if (this.muted) {
             c = color(this.colorMuted);
             alpha = 1;
-        } else if (aan && noot !== undefined) {
-            // lage noot = rood, hoge noot = paars
-            let kleurtoon: number = constrain(map(noot, 45, 81, 0, 300), 0, 300);
-            colorMode(HSB, 360, 100, 100, 255);
-            c = color(kleurtoon, 90, 100);
-            colorMode(RGB, 255);
-        } else if (aan) {
-            c = color(this.colorAan);
+            rand = color(250);
         } else {
-            c = color(this.colorUit);
+            rand = color(0);
+            if (aan && noot !== undefined) {
+                // lage noot = rood, hoge noot = paars
+                let kleurtoon: number = constrain(map(noot, 50, 90, 0, 300), 0, 300);
+                colorMode(HSB, 360, 100, 100, 255);
+                c = color(kleurtoon, 90, 100);
+                colorMode(RGB, 255);
+            } else if (aan) {
+                c = color(this.colorAan);
+            } else {
+                c = color(this.colorUit);
+            }
         }
         c.setAlpha(alpha * 255);
-        fill(c);
+
+        this.huidigeKleur = lerpColor(this.huidigeKleur, c, this.lerpSnelheid);
+        this.huidigeRand = lerpColor(this.huidigeRand, rand, this.lerpSnelheid);
+        fill(this.huidigeKleur);
+        stroke(this.huidigeRand);
     }
 }

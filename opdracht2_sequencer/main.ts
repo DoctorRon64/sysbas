@@ -3,15 +3,18 @@ import { Vierkant } from "./vierkant";
 let bgColor: string = "#0000ff";
 let vierkantAan: string = "#ff8800";
 let vierkantUit: string = "#ffffff";
-let vierkantMuted: string = "#888888";
+let vierkantMuted: string = "#6e6e6e";
 
-let midinoteArray: number[] = [60, 60, 60, 60, 60, 60];
-let amplitudeArray: number[] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6];
-let notelengthArray: number[] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6];
+let aantalVierkanten: number = 7;
+let midinoteArray: number[] = [60, 64, 67, 72, 71, 60, 73];
+let amplitudeArray: number[] = [0.9, 0.4, 0.6, 0.3, 0.5];
+let notelengthArray: number[] = [0.9, 1, 0.7, 0.8];
 
+let stap: number = 0;
 let counter: number = 0;
 let counterStep: number = 1;
-let framDivider: number = 10;
+
+let framDivider: number = 8;
 let play: boolean = false;
 
 let vierkanten: Vierkant[] = [];
@@ -23,83 +26,50 @@ let huidigeNoot: number = 60;
 function setup() {
     createCanvas(800, 600, WEBGL);
 
-    afstand = width / midinoteArray.length;
+    afstand = width / aantalVierkanten;
     // een draaiende kubus is op zijn breedst sqrt(3) keer zijn zijde
     let grootte: number = (afstand - tussenruimte) / sqrt(3);
 
-    for (let i = 0; i < midinoteArray.length; i++) {
+    for (let i = 0; i < aantalVierkanten; i++) {
         vierkanten.push(new Vierkant(100, 100, grootte, vierkantAan, vierkantUit, vierkantMuted));
     }
+
+    randomMidi();
 }
 
 function randomMidi() {
-    let minMidi: number = 45;
-    let maxMidi: number = 80;
-    midinoteArray = [
-        random(minMidi, maxMidi),
-        random(minMidi, maxMidi),
-        random(minMidi, maxMidi),
-        random(minMidi, maxMidi),
-        random(minMidi, maxMidi),
-        random(minMidi, maxMidi)
-    ];
-
-    let minAmp: number = 0.5;
-    let maxAmp: number = 0.9;
-    amplitudeArray = [
-        random(minAmp, maxAmp),
-        random(minAmp, maxAmp),
-        random(minAmp, maxAmp),
-        random(minAmp, maxAmp),
-        random(minAmp, maxAmp),
-        random(minAmp, maxAmp)
-    ];
-
-    let minNoteLength: number = .1;
-    let maxNoteLength: number = 1;
-    notelengthArray = [
-        random(minNoteLength, maxNoteLength),
-        random(minNoteLength, maxNoteLength),
-        random(minNoteLength, maxNoteLength),
-        random(minNoteLength, maxNoteLength),
-        random(minNoteLength, maxNoteLength),
-        random(minNoteLength, maxNoteLength)
-    ];
+    midinoteArray = midinoteArray.map(() => round(random(50, 90)));
+    amplitudeArray = amplitudeArray.map(() => round(random(0.2, 0.8), 2));
+    notelengthArray = notelengthArray.map(() => round(random(0.3, 1), 2));
+    framDivider = round(random(5, 10));
 }
 
 function draw() {
     background(bgColor);
 
     if ((frameCount / framDivider) % 1 === 0) {
-        counter += counterStep;
-
-        if (counter >= vierkanten.length) {
-            counter = 0;
-        }
-
-        let midiNote: number = midinoteArray[counter];
-        let amplitude: number = amplitudeArray[counter];
-        let noteLength: number = notelengthArray[counter];
+        counter = stap % vierkanten.length;
+        let midiNote: number = midinoteArray[stap % midinoteArray.length];
+        let amplitude: number = amplitudeArray[stap % amplitudeArray.length];
+        let noteLength: number = notelengthArray[stap % notelengthArray.length];
         huidigeNoot = midiNote;
-
         if (play && !vierkanten[counter].muted) {
             makeNote(midiNote, amplitude, noteLength * 1000);
-            randomMidi();
+            console.log(midiNote, amplitude, noteLength * 1000, framDivider);
         }
+        stap += counterStep;
     }
 
     for (let i = 0; i < vierkanten.length; i++) {
         let vierkant: Vierkant = vierkanten[i];
         let xpos: number = (frameCount * 2 + i * afstand) % width - width / 2;
-        let ypos: number = Math.sin(frameCount * 0.01);
+        let ypos: number = sin(frameCount * 0.03 + i) * 30;
         push();
         vierkant.move(xpos, ypos);
         vierkant.rotate(0.01);
 
         if (play && i === counter) {
-            let a: number = ((Math.sin(frameCount * 0.01) + 1) / 2) + .5;
-
-            vierkant.color(true, a, huidigeNoot);
+            vierkant.color(true, 1, huidigeNoot);
         } else {
             vierkant.color(false);
         }
@@ -114,6 +84,8 @@ function draw() {
 function keyPressed() {
     if (key === ' ') {
         play = !play;
+    } else if (key === 'r') {
+        randomMidi();
     }
 }
 
