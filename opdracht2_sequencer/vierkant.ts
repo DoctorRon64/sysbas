@@ -1,4 +1,6 @@
 export class Vierkant {
+    label: ReturnType<typeof createDiv>;
+
     constructor(x: number, y: number, size: number, colorAan: string, colorUit: string, colorMuted: string) {
         this.x = x;
         this.y = y;
@@ -8,6 +10,12 @@ export class Vierkant {
         this.colorMuted = colorMuted;
         this.huidigeKleur = color(colorUit);
         this.huidigeRand = color(0);
+
+        this.label = createDiv("");
+        this.label.style("color", "black");
+        this.label.style("font-family", "monospace");
+        this.label.style("transform", "translate(-50%, -50%)");
+        this.label.style("pointer-events", "none");
     }
 
     x: number;
@@ -17,10 +25,16 @@ export class Vierkant {
     colorUit: string;
     colorMuted: string;
     muted: boolean = false;
+    noot: number = 60;
     huidigeKleur: ReturnType<typeof color>;
     huidigeRand: ReturnType<typeof color>;
     // 0 = verandert nooit, 1 = springt meteen naar de nieuwe kleur
     lerpSnelheid: number = .45;
+
+    tekst(inhoud: string) {
+        this.label.html(inhoud);
+        this.label.position(this.x + width / 2, this.y + height / 1.9 + this.size);
+    }
 
     toggleMute() {
         this.muted = !this.muted;
@@ -39,6 +53,11 @@ export class Vierkant {
         this.x = x;
         this.y = y;
         translate(x, y);
+    }
+
+    nootNaam(noot: number): string {
+        let namen: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        return namen[noot % 12] + (floor(noot / 12) - 1);
     }
 
     select(mx: number, my: number): boolean {

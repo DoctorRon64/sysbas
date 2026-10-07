@@ -5,7 +5,7 @@ let vierkantAan: string = "#ff8800";
 let vierkantUit: string = "#ffffff";
 let vierkantMuted: string = "#6e6e6e";
 
-let aantalVierkanten: number = 7;
+let aantalVierkanten: number = 8;
 let midinoteArray: number[] = [60, 64, 67, 72, 71, 60, 73];
 let amplitudeArray: number[] = [0.9, 0.4, 0.6, 0.3, 0.5];
 let notelengthArray: number[] = [0.9, 1, 0.7, 0.8];
@@ -22,9 +22,17 @@ let tussenruimte: number = 10;
 let afstand: number = 0;
 
 let huidigeNoot: number = 60;
+let infoTekst: ReturnType<typeof createDiv>;
+
 
 function setup() {
     createCanvas(800, 600, WEBGL);
+
+    // text() werkt in WEBGL alleen met een geladen font, dus een HTML-laag erboven
+    infoTekst = createDiv("");
+    infoTekst.position(10, 10);
+    infoTekst.style("color", "white");
+    infoTekst.style("font-family", "monospace");
 
     afstand = width / aantalVierkanten;
     // een draaiende kubus is op zijn breedst sqrt(3) keer zijn zijde
@@ -35,6 +43,10 @@ function setup() {
     }
 
     randomMidi();
+
+    for (let i = 0; i < vierkanten.length; i++) {
+        vierkanten[i].noot = midinoteArray[i % midinoteArray.length];
+    }
 }
 
 function randomMidi() {
@@ -53,9 +65,16 @@ function draw() {
         let amplitude: number = amplitudeArray[stap % amplitudeArray.length];
         let noteLength: number = notelengthArray[stap % notelengthArray.length];
         huidigeNoot = midiNote;
+        vierkanten[counter].noot = midiNote;
         if (play && !vierkanten[counter].muted) {
             makeNote(midiNote, amplitude, noteLength * 1000);
             console.log(midiNote, amplitude, noteLength * 1000, framDivider);
+            let message: string = `stap: ${counter}<br>` +
+                `midiNote: ${midiNote}<br>` +
+                `amplitude: ${amplitude}<br>` +
+                `noteLength: ${noteLength * 1000}<br>` +
+                `framDivider: ${framDivider}`;
+            infoTekst.html(message);
         }
         stap += counterStep;
     }
@@ -66,6 +85,7 @@ function draw() {
         let ypos: number = sin(frameCount * 0.03 + i) * 30;
         push();
         vierkant.move(xpos, ypos);
+        vierkant.tekst(vierkant.muted ? "mute" : vierkant.nootNaam(vierkant.noot));
         vierkant.rotate(0.01);
 
         if (play && i === counter) {
@@ -77,8 +97,6 @@ function draw() {
         vierkant.update();
         pop();
     }
-
-    text(counter, 10, 10);
 }
 
 function keyPressed() {
