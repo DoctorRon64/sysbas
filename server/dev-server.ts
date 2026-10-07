@@ -32,15 +32,15 @@ function normalizeOscMessage(message: any): BrowserOscMessage | null {
 
   const args = Array.isArray(message.args)
     ? message.args.map((arg: any) => {
-        if (
-          arg &&
-          typeof arg === "object" &&
-          Object.prototype.hasOwnProperty.call(arg, "value")
-        ) {
-          return arg.value;
-        }
-        return arg;
-      })
+      if (
+        arg &&
+        typeof arg === "object" &&
+        Object.prototype.hasOwnProperty.call(arg, "value")
+      ) {
+        return arg.value;
+      }
+      return arg;
+    })
     : [];
 
   return {
@@ -170,7 +170,7 @@ async function main() {
         const links = projects
           .map(
             (project) =>
-              `<li><a href="/${encodeURIComponent(project)}/">${project}</a></li>`
+              `<li><a href="/${encodeURIComponent(project)}/">${project}<span>&rarr;</span></a></li>`
           )
           .join("");
 
@@ -180,18 +180,31 @@ async function main() {
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OSC + Vite projects</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
-    a { line-height: 2; }
-    code { background: #eee; padding: 2px 5px; border-radius: 4px; }
+    :root { color-scheme: light dark; --bg: #fafafa; --fg: #222; --muted: #777; --card: #fff; --border: #e3e3e3; --accent: #646cff; --code: #eee; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #1a1a1a; --fg: #eee; --muted: #999; --card: #242424; --border: #333; --code: #333; }
+    }
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: var(--bg); color: var(--fg); }
+    h1 { margin-bottom: 4px; }
+    h1 small { font-size: 0.5em; font-weight: normal; color: var(--muted); }
+    p { color: var(--muted); }
+    ul { list-style: none; padding: 0; display: grid; gap: 8px; }
+    a { display: flex; justify-content: space-between; padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: inherit; text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
+    a:hover { border-color: var(--accent); transform: translateX(2px); }
+    a span { color: var(--muted); }
+    a:hover span { color: var(--accent); }
+    code { background: var(--code); padding: 2px 5px; border-radius: 4px; }
+    footer { margin-top: 24px; font-size: 0.9em; color: var(--muted); }
   </style>
 </head>
 <body>
-  <h1>Projects</h1>
+  <h1>Projects <small>(${projects.length})</small></h1>
   <p>Each project contains <code>index.html</code> and <code>main.ts</code>.</p>
   <ul>${links || "<li>No projects found yet.</li>"}</ul>
-  <p>OSC UDP: <code>${OSC_HOST}:${OSC_PORT}</code></p>
+  <footer>OSC UDP: <code>${OSC_HOST}:${OSC_PORT}</code> &middot; OSC WS: <code>ws://localhost:${HTTP_PORT}/osc</code></footer>
 </body>
 </html>`
         );
