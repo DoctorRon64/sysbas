@@ -57,7 +57,7 @@ export class Vierkant {
 
     nootNaam(noot: number): string {
         let namen: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        return namen[noot % 12] + (floor(noot / 12) - 1);
+        return namen[noot % 12] + (floor(noot / 12) - 1) + ' (' + String(noot) + ')' ;
     }
 
     select(mx: number, my: number): boolean {

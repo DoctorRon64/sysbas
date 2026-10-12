@@ -1,6 +1,6 @@
 import { Vierkant } from "./vierkant";
 
-let bgColor: string = "#0000ff";
+let bgColor: string = "#13b4bd";
 let vierkantAan: string = "#ff8800";
 let vierkantUit: string = "#ffffff";
 let vierkantMuted: string = "#6e6e6e";
@@ -54,6 +54,10 @@ function randomMidi() {
     amplitudeArray = amplitudeArray.map(() => round(random(0.2, 0.8), 2));
     notelengthArray = notelengthArray.map(() => round(random(0.3, 1), 2));
     framDivider = round(random(5, 10));
+
+    for (let i = 0; i < vierkanten.length; i++) {
+        vierkanten[i].noot = midinoteArray[i % midinoteArray.length];
+    }
 }
 
 function draw() {
@@ -65,7 +69,7 @@ function draw() {
         let amplitude: number = amplitudeArray[stap % amplitudeArray.length];
         let noteLength: number = notelengthArray[stap % notelengthArray.length];
         huidigeNoot = midiNote;
-        vierkanten[counter].noot = midiNote;
+        //vierkanten[counter].noot = midiNote;
         if (play && !vierkanten[counter].muted) {
             makeNote(midiNote, amplitude, noteLength * 1000);
             console.log(midiNote, amplitude, noteLength * 1000, framDivider);
