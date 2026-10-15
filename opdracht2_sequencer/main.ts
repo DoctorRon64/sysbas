@@ -14,7 +14,8 @@ let stap: number = 0;
 let counter: number = 0;
 let counterStep: number = 1;
 
-let framDivider: number = 8;
+let frameDivider: number = 8;
+let maxFrameDivider: number = 10;
 let play: boolean = false;
 
 let vierkanten: Vierkant[] = [];
@@ -53,7 +54,7 @@ function randomMidi() {
     midinoteArray = midinoteArray.map(() => round(random(50, 90)));
     amplitudeArray = amplitudeArray.map(() => round(random(0.2, 0.8), 2));
     notelengthArray = notelengthArray.map(() => round(random(0.3, 1), 2));
-    framDivider = round(random(5, 10));
+    frameDivider = round(random(5, maxFrameDivider));
 
     for (let i = 0; i < vierkanten.length; i++) {
         vierkanten[i].noot = midinoteArray[i % midinoteArray.length];
@@ -62,8 +63,9 @@ function randomMidi() {
 
 function draw() {
     background(bgColor);
+    lights();
 
-    if ((frameCount / framDivider) % 1 === 0) {
+    if ((frameCount / frameDivider) % 1 === 0) {
         counter = stap % vierkanten.length;
         let midiNote: number = midinoteArray[stap % midinoteArray.length];
         let amplitude: number = amplitudeArray[stap % amplitudeArray.length];
@@ -72,12 +74,12 @@ function draw() {
         //vierkanten[counter].noot = midiNote;
         if (play && !vierkanten[counter].muted) {
             makeNote(midiNote, amplitude, noteLength * 1000);
-            console.log(midiNote, amplitude, noteLength * 1000, framDivider);
+            console.log(midiNote, amplitude, noteLength * 1000, frameDivider);
             let message: string = `stap: ${counter}<br>` +
                 `midiNote: ${midiNote}<br>` +
                 `amplitude: ${amplitude}<br>` +
                 `noteLength: ${noteLength * 1000}<br>` +
-                `framDivider: ${framDivider}`;
+                `framDivider: ${frameDivider}`;
             infoTekst.html(message);
         }
         stap += counterStep;
