@@ -54,8 +54,8 @@ function setup() {
 
 function randomizeAllValues() {
     midinoteArray = midinoteArray.map(() => randomizeMIDI());
-    amplitudeArray = amplitudeArray.map(() => round(random(0.2, 0.8), 2));
-    notelengthArray = notelengthArray.map(() => round(random(0.3, 1), 2));
+    amplitudeArray = amplitudeArray.map(() => randomizeAmplitude(), 2);
+    notelengthArray = notelengthArray.map(() => randomizeNoteLengths(), 2);
     frameDivider = round(random(5, maxFrameDivider));
 
     updateTextInVierkanten();
@@ -63,6 +63,14 @@ function randomizeAllValues() {
 
 function randomizeMIDI() {
     return round(random(50, 90));
+}
+
+function randomizeAmplitude() {
+    return round(random(0.2, 0.8));
+}
+
+function randomizeNoteLengths() {
+    return round(random(0.3, 1));
 }
 
 function updateTextInVierkanten() {
@@ -134,22 +142,40 @@ function keyPressed() {
             randomizeAllValues();
         break;
         case keyList[2]:
+            //reverse de array
             midinoteArray.reverse();
             for (let i = 0; i < midinoteArray.length; i++ ) {
                 console.log(midinoteArray[i]);
             }
             updateTextInVierkanten();
         break;
-        case keyList[3]: 
-            //shift drukt moeten de elementen uit de lijst met midinoten één plaats naar rechts roteren
-        break;
+        case keyList[3]:
+            // Roteer de elementen één plaats naar rechts
+            midinoteArray.push(midinoteArray[0]);
+            midinoteArray.shift();
+            updateTextInVierkanten();
+            break;
         case keyList[4]:
-            // drukt moeten de elementen uit de lijst met midinoten één plaats naar links roteren. 
-        break;
+                // Roteer de elementen één plaats naar links
+            midinoteArray.unshift(midinoteArray[midinoteArray.length - 1]);
+            midinoteArray.pop();
+            updateTextInVierkanten();
+            break;
         case keyList[5]:
             // drukt moet er random één noot worden toegevoegd aan het eind van de lijst met noten.
             // Zorg dat de range van dit getal enigszins logisch is. Gebruik dus geen random tussen 0 en 127,
             // maar een aangepaste range voor random. Vergeet ook niet de lijst met duur en amplitude aan te passen.
+            midinoteArray.push(randomizeMIDI());
+            amplitudeArray.push(randomizeAmplitude());
+            notelengthArray.push(randomizeNoteLengths());
+            updateTextInVierkanten();
+            aantalVierkanten++;
+
+            vierkanten = [];
+            let grootte: number = (afstand - tussenruimte) / sqrt(3);
+            for (let i = 0; i < aantalVierkanten; i++) {
+                vierkanten.push(new Vierkant(100, 100, grootte, vierkantAan, vierkantUit, vierkantMuted));
+            }
         break;
         case keyList[6]:
             // drukt, zorg dan dat er een noot wordt toegevoegd die binnen de toonsoort past
