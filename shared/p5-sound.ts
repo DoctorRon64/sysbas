@@ -45,6 +45,8 @@ export function makeNote(
   osc.start();
   osc.amp(amp, 0.01);
   osc.amp(0, Math.min(0.2, durationSec * 0.4), durationSec);
+  // amp() annuleert een lopende ramp, dus het uitsterven pas na de aanslag inplannen
+  //window.setTimeout(() => osc.amp(0, release), 10);
 
   window.setTimeout(() => {
     try {

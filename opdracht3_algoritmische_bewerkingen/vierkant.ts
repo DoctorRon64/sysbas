@@ -1,10 +1,7 @@
 export class Vierkant {
     label: ReturnType<typeof createDiv>;
 
-    constructor(x: number, y: number, size: number, colorAan: string, colorUit: string, colorMuted: string) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
+    constructor(colorAan: string, colorUit: string, colorMuted: string) {
         this.colorAan = colorAan;
         this.colorUit = colorUit;
         this.colorMuted = colorMuted;
@@ -18,9 +15,9 @@ export class Vierkant {
         this.label.style("pointer-events", "none");
     }
 
-    x: number;
-    y: number;
-    size: number;
+    x: number = 0;
+    y: number = 0;
+    size: number = 0;
     colorAan: string;
     colorUit: string;
     colorMuted: string;
@@ -38,6 +35,10 @@ export class Vierkant {
 
     toggleMute() {
         this.muted = !this.muted;
+    }
+
+    verwijder() {
+        this.label.remove();
     }
 
     update() {

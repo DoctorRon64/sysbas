@@ -9,3 +9,5 @@ declare function makeNote(
   amplitude?: number,
   durationMs?: number
 ): void;
+
+declare function keyIsDown(code: string): boolean;
