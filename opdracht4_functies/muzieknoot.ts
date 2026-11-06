@@ -16,7 +16,10 @@ export class MuziekNoot {
     
     update() {
         let stokjeX: number = this.x + (this.notesize / 2);
+        fill(this.strokeColor);
         line(stokjeX, this.y, stokjeX, this.y - this.stokjelength);
+        fill(this.fillColor);
+        stroke(this.strokeColor);
         circle(this.x,this.y,this.notesize);
     }
 
@@ -24,10 +27,5 @@ export class MuziekNoot {
         this.x = x;
         this.y = y;
         translate(x, y);
-    }
-
-    color() {
-        fill(this.fillColor);
-        stroke(this.strokeColor);
     }
 }

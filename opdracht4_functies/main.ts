@@ -1,7 +1,7 @@
 import { Vierkant } from "./vierkant";
 import { MuziekNoot } from "./muzieknoot";
 import { COLORS } from "./colors";
-import { Sneltoets } from "./Sneltoets";
+import { Sneltoets } from "./sneltoets";
 
 let performRandomAct: boolean = false;
 
