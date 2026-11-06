@@ -39,13 +39,13 @@ export function makeNote(
   const durationSec = Math.max(durationMs, 1) / 1000;
   const amp = Math.max(0, Math.min(1, amplitude));
 
-  const osc = new P5.Oscillator("sine");
+  const osc = new P5.Oscillator("square");
   osc.freq(freq);
   osc.amp(0);
   osc.start();
-  osc.amp(amp, 0.01);
-  osc.amp(0, Math.min(0.2, durationSec * 0.4), durationSec);
-  // amp() annuleert een lopende ramp, dus het uitsterven pas na de aanslag inplannen
+  //osc.amp(amp, 0.01);
+  osc.amp(0, Math.min(0.2, durationSec * 0.9) * amp, durationSec);
+  //amp() annuleert een lopende ramp, dus het uitsterven pas na de aanslag inplannen
   //window.setTimeout(() => osc.amp(0, release), 10);
 
   window.setTimeout(() => {

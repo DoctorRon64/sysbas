@@ -168,6 +168,8 @@ function voerUit(sneltoets: Sneltoets, label: string) {
     feedbackTekst.html(`[${label}] ${melding ?? sneltoets.beschrijving}`);
 }
 
+
+
 function draw() {
     background(COLORS.background);
     lights();
