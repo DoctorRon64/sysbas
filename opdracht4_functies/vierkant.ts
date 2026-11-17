@@ -2,6 +2,7 @@ import { MuziekNoot } from "./muzieknoot";
 
 export class Vierkant {
     label: ReturnType<typeof createDiv>;
+    muzieknoot?: MuziekNoot;
     x: number = 0;
     y: number = 0;
     size: number = 0;
@@ -15,12 +16,13 @@ export class Vierkant {
     // 0 = verandert nooit, 1 = springt meteen naar de nieuwe kleur
     lerpSnelheid: number = .45;
 
-    constructor(colorAan: string, colorUit: string, colorMuted: string) {
+    constructor(colorAan: string, colorUit: string, colorMuted: string, noot: MuziekNoot) {
         this.colorAan = colorAan;
         this.colorUit = colorUit;
         this.colorMuted = colorMuted;
         this.huidigeKleur = color(colorUit);
         this.huidigeRand = color(0);
+        this.muzieknoot = noot;
 
         this.label = createDiv("");
         this.label.style("color", "black");
@@ -34,6 +36,15 @@ export class Vierkant {
         this.label.position(this.x + width / 2, this.y + height / 1.9 + this.size);
     }
 
+    nootMove(x: number, y: number) {
+        console.log(x,y);
+        this.muzieknoot?.move(x,y);
+    }
+
+    nootUpdate() {
+        this.muzieknoot?.update();
+    }
+
     toggleMute() {
         this.muted = !this.muted;
     }
@@ -43,7 +54,16 @@ export class Vierkant {
     }
 
     update() {
+        this.updateKleur();
+        this.teken();
+    }
+
+    private teken() {
         box(this.size);
+    }
+
+    private updateKleur() {
+        // Kleurtransitie
     }
 
     rotate(angle: number) {
@@ -54,7 +74,7 @@ export class Vierkant {
     move(x: number, y: number) {
         this.x = x;
         this.y = y;
-        translate(x, y);
+        translate(x, y, 0);
     }
 
     nootNaam(noot: number): string {

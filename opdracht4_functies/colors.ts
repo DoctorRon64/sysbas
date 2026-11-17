@@ -4,5 +4,5 @@ export const COLORS = {
     VierkantOFF: "#ffffff",
     VierkantMUTED: "#6e6e6e",
     Note: "#00000f",
-    NoteStroke: "#ffffff"
+    NoteStroke: "#161616"
 } as const;

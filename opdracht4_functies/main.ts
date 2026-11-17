@@ -8,9 +8,9 @@ let performRandomAct: boolean = false;
 const sneltoetsen: Sneltoets[] = [
     { toetsen: [' '], naam: 'spatie', beschrijving: 'play / pause', actie: () => { play = !play; return play ? 'play' : 'pause'; } },
     { toetsen: ['q'], beschrijving: 'alles randomizen', actie: randomizeAllValues },
-    { toetsen: ['o'], beschrijving: 'notenlijst omdraaien', actie: () => { midinoteArray.reverse(); } },
-    { toetsen: ['r', 'arrowright'], naam: 'r / →', beschrijving: 'rechts roteren', actie: () => { midinoteArray.unshift(midinoteArray.pop()!); } },
-    { toetsen: ['l', 'arrowleft'], naam: 'l / ←', beschrijving: 'links roteren', actie: () => { midinoteArray.push(midinoteArray.shift()!); } },
+    { toetsen: ['o'], beschrijving: 'notenlijst omdraaien', actie: () => reverse() },
+    { toetsen: ['r', 'arrowright'], naam: 'r / →', beschrijving: 'rechts roteren', actie: () => shiftLeft() },
+    { toetsen: ['l', 'arrowleft'], naam: 'l / ←', beschrijving: 'links roteren', actie: () => shiftRight() },
     { toetsen: ['a'], beschrijving: 'random noot +', actie: () => addNote(randomNote()) },
     { toetsen: ['t'], beschrijving: 'toonsoort noot +', actie: () => addNote(randomNoteInScale()) },
     { toetsen: ['b'], beschrijving: 'laatste noot -', actie: () => deleteNote(true) },
@@ -25,10 +25,36 @@ const sneltoetsen: Sneltoets[] = [
 
 const randomToetsen: string[] = ['o', 'r', 'l', 'a', 't', 'b', 'd', '+', '-', 's', 'x'];
 
-// noot, amplitude en lengte horen per index bij elkaar, dus deze lijsten zijn altijd even lang
-let midinoteArray: number[] = [60, 64, 67, 72, 71, 60, 73];
-let amplitudeArray: number[] = [0.9, 0.4, 0.6, 0.3, 0.5, 0.7, 0.4];
-let notelengthArray: number[] = [0.9, 1, 0.7, 0.8, 0.6, 0.9, 0.5];
+type MuziekData = {
+    midiNote: number;
+    amplitude: number;
+    length: number;
+};
+
+let muziekData: MuziekData[] = [
+    { midiNote: 60, amplitude: 0.9, length: 0.9 },
+    { midiNote: 64, amplitude: 0.4, length: 1 },
+    { midiNote: 67, amplitude: 0.6, length: 0.7 },
+    { midiNote: 72, amplitude: 0.3, length: 0.8 },
+    { midiNote: 71, amplitude: 0.5, length: 0.6 },
+    { midiNote: 60, amplitude: 0.7, length: 0.9 },
+    { midiNote: 73, amplitude: 0.4, length: 0.5 }
+];
+
+// g. Visualisatie
+//     Visualiseer de toonhoogte van de noten: zorg dat de y positie van de noten afhangt van de toonhoogte van de noot.
+//     Zorg dat de huidige noot van de sequencer er anders uit ziet (door bijvoorbeeld deze een andere kleur te geven).
+//     Voeg een vlaggetje toe zodat je noten er uit zien als achtste noten ♪.
+//     (beoordeling: goed)
+
+// h. Verdere uitbreidingen
+// Voer een (of meerdere) van de volgende opdrachten uit:
+//     Zorg dat de vlaggetjes een vloeiende vorm hebben met bijvoorbeeld een bezier of spline curve.
+//     Zorg dat je sequence een combinatie van kwart ♩, achtste ♪ en zestiende ♬ noten bevat, dat de timing klopt en dat de noten de juiste vorm hebben.
+//     Een eigen creatieve uitbreiding.
+//     (beoordeling: zeer goed)
+
+
 const minAantalNoten: number = 2;
 const maxAantalNoten: number = 16;
 const laagsteNoot: number = 36;
@@ -37,23 +63,21 @@ const hoogsteNoot: number = 96;
 const grondtoon: number = 60;
 const toonladder: number[] = [0, 2, 4, 5, 7, 9, 11];
 
-let stap: number = 0;
-let counter: number = 0;
+let stap:  number = 0;
+let counter:  number = 0;
 const counterStep: number = 1;
 
 let frameDivider: number = 8;
 const maxFrameDivider: number = 10;
 let play: boolean = false;
 
-let noten: MuziekNoot[] = [];
-
 let vierkanten: Vierkant[] = [];
-const tussenruimte: number = 10;
-const maxGrootte: number = 60;
+const tussenruimte:  number = 10;
+const maxGrootte:  number = 60;
 let afstand: number = 0;
 
 let volume: number = 0.5;
-let feedbackTekst: ReturnType<typeof createDiv>;
+let feedbackTekst:  ReturnType<typeof createDiv>;
 
 function setup() {
     createCanvas(800, 600, WEBGL);
@@ -67,24 +91,24 @@ function setup() {
         .position(0, height - 50)
         .style(`width: ${width}px; text-align: center; font: 24px monospace; color: black;`);
 
-    for (let i = 0; i < midinoteArray.length; i++) {
-        vierkanten.push(new Vierkant(COLORS.VierkantON, COLORS.VierkantOFF, COLORS.VierkantMUTED));
-        noten.push(new MuziekNoot(COLORS.Note, COLORS.NoteStroke, 50, 30));
+    for (let i = 0; i < muziekData.length; i++) {
+        vierkanten.push(createVierkant());
     }
-
+    
     randomizeAllValues();
 }
 
 function randomizeAllValues() {
-    midinoteArray = midinoteArray.map(randomNote);
-    amplitudeArray = amplitudeArray.map(randomAmplitude);
-    notelengthArray = notelengthArray.map(randomNoteLength);
-    frameDivider = round(random(5, maxFrameDivider));
+    muziekData = muziekData.map(() => ({
+        midiNote: randomNote(),
+        amplitude: randomAmplitude(),
+        length: randomNoteLength()
+    }));
 
+    frameDivider = round(random(5, maxFrameDivider));
     updateVierkanten();
 }
 
-//Values
 const randomNote = (): number => round(random(50, 90));
 const randomNoteInScale = (): number => {
     let octaaf: number = floor(random(-1, 2)) * 12;
@@ -94,63 +118,114 @@ const randomAmplitude = (): number => round(random(0.2, 0.8), 2);
 const randomNoteLength = (): number => round(random(0.3, 1), 2);
 
 function addNote(noot: number): string | void {
-    if (midinoteArray.length >= maxAantalNoten) {
+    if (muziekData.length >= maxAantalNoten) {
         return `maximaal ${maxAantalNoten} noten`;
     }
-    midinoteArray.push(noot);
-    amplitudeArray.push(randomAmplitude());
-    notelengthArray.push(randomNoteLength());
-    vierkanten.push(new Vierkant(COLORS.VierkantON, COLORS.VierkantOFF, COLORS.VierkantMUTED));
+
+    muziekData.push({
+        midiNote: noot,
+        amplitude: randomAmplitude(),
+        length: randomNoteLength()
+    });
+
+    vierkanten.push(createVierkant());
+    updateVierkanten();
 }
 
 function deleteNote(lastNote: boolean): string | void {
-    if (midinoteArray.length <= minAantalNoten) {
+    if (muziekData.length <= minAantalNoten) {
         return `minimaal ${minAantalNoten} noten`;
     }
+
     if (lastNote) {
-        midinoteArray.pop();
-        amplitudeArray.pop();
-        notelengthArray.pop();
-        vierkanten.pop()!.verwijder();
+        muziekData.pop();
+        vierkanten.pop()?.verwijder();
     } else {
-        midinoteArray.shift();
-        amplitudeArray.shift();
-        notelengthArray.shift();
-        vierkanten.shift()!.verwijder();
+        muziekData.shift();
+        vierkanten.shift()?.verwijder();
     }
+    updateVierkanten();
 }
 
 function transponeer(semitonen: number) {
-    midinoteArray = midinoteArray.map((noot) => constrain(noot + semitonen, laagsteNoot, hoogsteNoot));
+    muziekData = muziekData.map((data) => ({ ...data,
+        midiNote: constrain(
+            data.midiNote + semitonen,
+            laagsteNoot,
+            hoogsteNoot
+        )
+    }));
 }
 
-// noten buiten de toonladder schuiven eerst naar de toon eronder
 function transponeerInToonladder(stappen: number) {
-    midinoteArray = midinoteArray.map((noot) => {
-        let vanafGrondtoon: number = noot - grondtoon;
-        let octaaf: number = floor(vanafGrondtoon / 12);
-        let positie: number = vanafGrondtoon - octaaf * 12;
-        let index: number = octaaf * toonladder.length + toonladder.filter((t) => t <= positie).length - 1 + stappen;
-
-        let nieuwOctaaf: number = floor(index / toonladder.length);
-        let toon: number = toonladder[index - nieuwOctaaf * toonladder.length];
-        return constrain(grondtoon + nieuwOctaaf * 12 + toon, laagsteNoot, hoogsteNoot);
+    muziekData = muziekData.map((data) => {
+        let index = toonladderPositie(data.midiNote) + stappen;
+        index = constrain( index, toonladderPositie(laagsteNoot), toonladderPositie(hoogsteNoot));
+        return { ...data, midiNote: nootVanToonladderPositie(index) };
     });
 }
 
+function toonladderPositie(noot: number): number {
+    let relatief = noot - grondtoon;
+    let octaaf = floor(relatief / 12);
+    let positie = ((relatief % 12) + 12) % 12;
+
+    let index = toonladder.filter(
+        (toon) => toon <= positie
+    ).length - 1;
+
+    return octaaf * toonladder.length + index;
+}
+
+function nootVanToonladderPositie(index: number): number {
+    let octaaf = floor(index / toonladder.length);
+    let toonIndex = ((index % toonladder.length) + toonladder.length)
+        % toonladder.length;
+
+    return grondtoon + octaaf * 12 + toonladder[toonIndex];
+}
+
 function notelengthFromMidiNote() {
-    notelengthArray = midinoteArray.map((noot) => round(map(noot, 50, 90, 1, 0.3, true), 2));
+    muziekData = muziekData.map((data) => ({ ...data,
+        length: round(
+            map(data.midiNote, 50, 90, 1, 0.3, true),
+            2
+        )
+    }));
+}
+
+function reverse() {
+    muziekData.reverse();
+}
+
+function shiftLeft() {
+    muziekData.unshift(muziekData.pop()!);
+}
+
+function shiftRight() {
+    muziekData.push(muziekData.shift()!);
+}
+
+function createVierkant(): Vierkant {
+    return new Vierkant(COLORS.VierkantON, COLORS.VierkantOFF, COLORS.VierkantMUTED, new MuziekNoot(
+        COLORS.Note, COLORS.NoteStroke, 25, 15, 8)
+    );
 }
 
 function updateVierkanten() {
-    afstand = width / vierkanten.length;
-    // een draaiende kubus is op zijn breedst sqrt(3) keer zijn zijde
-    let grootte: number = min((afstand - tussenruimte) / sqrt(3), maxGrootte);
+    if (vierkanten.length === 0) return;
 
-    for (let i = 0; i < vierkanten.length; i++) {
-        vierkanten[i].size = grootte;
-        vierkanten[i].noot = midinoteArray[i];
-    }
+    afstand = width / vierkanten.length;
+
+    const grootte = min(
+        (afstand - tussenruimte) / sqrt(3),
+        maxGrootte
+    );
+
+    vierkanten.forEach((vierkant, i) => {
+        vierkant.size = grootte;
+        vierkant.noot = muziekData[i].midiNote;
+    });
 }
 
 function voerUit(sneltoets: Sneltoets, label: string) {
@@ -159,61 +234,78 @@ function voerUit(sneltoets: Sneltoets, label: string) {
     feedbackTekst.html(`[${label}] ${melding ?? sneltoets.beschrijving}`);
 }
 
-
-
 function draw() {
     background(COLORS.Background);
     lights();
 
-    if (frameCount % frameDivider === 0) {
-        counter = stap % midinoteArray.length;
-        if (play && !vierkanten[counter].muted && volume > 0) {
-            let noteVolume: number = amplitudeArray[counter] * volume;
-            makeNote(midinoteArray[counter], noteVolume, notelengthArray[counter] * 1000);
-        }
-        stap += counterStep;
+    updateSequencer();
+    updateRandomActions();
+    updateVolume();
 
-        if (performRandomAct && random() < 0.1) {
-            let toets: string = random(randomToetsen);
-            voerUit(sneltoetsen.find((s) => s.toetsen.includes(toets))!, 'random');
-        }
-    }
+    tekenVierkanten();
+}
 
+function tekenVierkanten() {
     for (let i = 0; i < vierkanten.length; i++) {
-        let vierkant: Vierkant = vierkanten[i];
-        let xpos: number = (frameCount * 2 + i * afstand) % width - width / 2;
-        let ypos: number = sin(frameCount * 0.03 + i) * 30;
+        let vierkant = vierkanten[i];
+
+        let xpos = (frameCount * 2 + i * afstand) % width - width / 2;
+        let ypos = sin(frameCount * 0.03 + i) * 30;
+
         push();
         vierkant.move(xpos, ypos);
         vierkant.tekst(vierkant.muted ? "mute" : vierkant.nootNaam(vierkant.noot));
         vierkant.rotate(0.01);
-
-        if (play && i === counter) {
-            vierkant.color(true, 1, vierkant.noot);
-        } else {
-            vierkant.color(false);
-        }
-
+        vierkant.color(play && i === counter, 1, vierkant.noot);
         vierkant.update();
         pop();
+
+        push();
+        vierkant.nootUpdate();
+        vierkant.nootMove(xpos, ypos + 150);
+        pop();
+    }
+}
+
+function updateSequencer() {
+    if (frameCount % frameDivider !== 0) {
+        return;
     }
 
-    for (let i = 0; i < noten.length; i++) {
-        let noot: MuziekNoot = noten[i];
-        let xpos: number = (2 + i * afstand) % width - width / 2 + 400;
-        let ypos: number = 30;
+    counter = stap % muziekData.length;
+    const data = muziekData[counter];
 
-        noot.update();
-        noot.move(xpos, ypos);
+    if (play && !vierkanten[counter].muted && volume > 0) {
+        makeNote(data.midiNote, data.amplitude * volume, data.length * 1000);
     }
 
-    if (keyIsDown('ArrowUp')) {
+    stap++;
+}
+
+function updateVolume() {
+    if (keyIsDown(UP_ARROW)) {
         volume = min(volume + 0.01, 1);
         feedbackTekst.html(`[volume: ${round(volume, 2)}]`);
     }
-    if (keyIsDown('ArrowDown')) {
+
+    if (keyIsDown(DOWN_ARROW)) {
         volume = max(volume - 0.01, 0);
         feedbackTekst.html(`[volume: ${round(volume, 2)}]`);
+    }
+}
+
+function updateRandomActions() {
+    if (!performRandomAct || random() >= 0.1) {
+        return;
+    }
+
+    let toets = random(randomToetsen);
+    let sneltoets = sneltoetsen.find(
+        (s) => s.toetsen.includes(toets)
+    );
+
+    if (sneltoets) {
+        voerUit(sneltoets, 'random');
     }
 }
 
