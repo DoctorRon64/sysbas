@@ -115,6 +115,7 @@ export class Vierkant {
         this.huidigeKleur = lerpColor(this.huidigeKleur, c, this.lerpSnelheid);
         this.huidigeRand = lerpColor(this.huidigeRand, rand, this.lerpSnelheid);
         fill(this.huidigeKleur);
+        this.muzieknoot?.color(this.huidigeKleur);
         stroke(this.huidigeRand);
     }
 }

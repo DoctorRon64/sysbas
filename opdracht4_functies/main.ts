@@ -41,12 +41,6 @@ let muziekData: MuziekData[] = [
     { midiNote: 73, amplitude: 0.4, length: 0.5 }
 ];
 
-// g. Visualisatie
-//     Visualiseer de toonhoogte van de noten: zorg dat de y positie van de noten afhangt van de toonhoogte van de noot.
-//     Zorg dat de huidige noot van de sequencer er anders uit ziet (door bijvoorbeeld deze een andere kleur te geven).
-//     Voeg een vlaggetje toe zodat je noten er uit zien als achtste noten ♪.
-//     (beoordeling: goed)
-
 // h. Verdere uitbreidingen
 // Voer een (of meerdere) van de volgende opdrachten uit:
 //     Zorg dat de vlaggetjes een vloeiende vorm hebben met bijvoorbeeld een bezier of spline curve.
@@ -63,9 +57,10 @@ const hoogsteNoot: number = 96;
 const grondtoon: number = 60;
 const toonladder: number[] = [0, 2, 4, 5, 7, 9, 11];
 
-let stap:  number = 0;
+let bpm: number = 300;
+let lastStepTime: number = 0;
+let stap: number = 0;
 let counter:  number = 0;
-const counterStep: number = 1;
 
 let frameDivider: number = 8;
 const maxFrameDivider: number = 10;
@@ -208,7 +203,7 @@ function shiftRight() {
 
 function createVierkant(): Vierkant {
     return new Vierkant(COLORS.VierkantON, COLORS.VierkantOFF, COLORS.VierkantMUTED, new MuziekNoot(
-        COLORS.Note, COLORS.NoteStroke, 25, 15, 8)
+        COLORS.Note, color(0), 25, 10, 8)
     );
 }
 
@@ -250,7 +245,8 @@ function tekenVierkanten() {
         let vierkant = vierkanten[i];
 
         let xpos = (frameCount * 2 + i * afstand) % width - width / 2;
-        let ypos = sin(frameCount * 0.03 + i) * 30;
+        //let ypos = sin(frameCount * 0.03 + i) * 30;
+        let ypos = 0;
 
         push();
         vierkant.move(xpos, ypos);
@@ -262,15 +258,19 @@ function tekenVierkanten() {
 
         push();
         vierkant.nootUpdate();
-        vierkant.nootMove(xpos, ypos + 150);
+        vierkant.nootMove(xpos, ypos - 80);
         pop();
     }
 }
 
 function updateSequencer() {
-    if (frameCount % frameDivider !== 0) {
+    const stepDuration = 60000 / bpm;
+
+    if (millis() - lastStepTime < stepDuration) {
         return;
     }
+
+    lastStepTime = millis();
 
     counter = stap % muziekData.length;
     const data = muziekData[counter];
@@ -281,6 +281,7 @@ function updateSequencer() {
 
     stap++;
 }
+
 
 function updateVolume() {
     if (keyIsDown(UP_ARROW)) {
